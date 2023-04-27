@@ -4,6 +4,7 @@ import com.alexmerz.graphviz.Parser;
 import com.alexmerz.graphviz.objects.Edge;
 import com.alexmerz.graphviz.objects.Graph;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -23,7 +24,7 @@ public final class GameServer {
 
     private static final char END_OF_TRANSMISSION = 4;
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, ParserConfigurationException {
         File entitiesFile = Paths.get("config" + File.separator + "extended-entities.dot").toAbsolutePath().toFile();
         File actionsFile = Paths.get("config" + File.separator + "extended-actions.xml").toAbsolutePath().toFile();
         GameServer server = new GameServer(entitiesFile, actionsFile);
@@ -40,7 +41,7 @@ public final class GameServer {
     * @param actionsFile The game configuration file containing all game actions to use in your game
     *
     */
-    public GameServer(File entitiesFile, File actionsFile) {
+    public GameServer(File entitiesFile, File actionsFile) throws ParserConfigurationException {
         // TODO implement your server logic here
         // First parse the entity DOT file (entitiesFile) using JPGD parser
         GameWorld gameWorld = new GameWorld(entitiesFile, actionsFile);

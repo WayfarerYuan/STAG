@@ -15,9 +15,14 @@ public abstract class GameEntity
     {
         return name;
     }
-
+    public void setName(String newName) {
+        name = newName;
+    }
     public String getDescription()
     {
         return description;
+    }
+    public void setDescription(String newDescription) {
+        description = newDescription;
     }
 }

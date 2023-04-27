@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.nio.file.Paths;
 import java.io.IOException;
@@ -16,7 +18,7 @@ class ExampleSTAGTests {
 
   // Create a new server _before_ every @Test
   @BeforeEach
-  void setup() {
+  void setup() throws ParserConfigurationException {
       File entitiesFile = Paths.get("config" + File.separator + "basic-entities.dot").toAbsolutePath().toFile();
       File actionsFile = Paths.get("config" + File.separator + "basic-actions.xml").toAbsolutePath().toFile();
       server = new GameServer(entitiesFile, actionsFile);
