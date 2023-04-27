@@ -43,8 +43,8 @@ public final class GameServer {
     public GameServer(File entitiesFile, File actionsFile) {
         // TODO implement your server logic here
         // First parse the entity DOT file (entitiesFile) using JPGD parser
-        GameWorld gameWorld = new GameWorld(entitiesFile);
-        gameWorld.parseGameWorld(entitiesFile);
+        GameWorld gameWorld = new GameWorld(entitiesFile, actionsFile);
+        gameWorld.parseGameWorld(entitiesFile, actionsFile);
     }
 
     /**

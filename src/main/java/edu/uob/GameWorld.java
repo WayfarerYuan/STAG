@@ -12,15 +12,15 @@ import java.io.FileReader;
 import java.util.ArrayList;
 
 public class GameWorld {
-    public GameWorld(File entitiesFile) {
+    public GameWorld(File entitiesFile, File actionsFile) {
 
     }
 
     //First take in the config file and parse it
-    void parseGameWorld(File configFile) {
+    void parseGameWorld(File entitiesFile, File actionsFile) {
         try {
             Parser parser = new Parser();
-            FileReader reader = new FileReader("config" + File.separator + "basic-entities.dot");
+            FileReader reader = new FileReader(entitiesFile);
             parser.parse(reader);
             Graph wholeDocument = parser.getGraphs().get(0);
             ArrayList<Graph> sections = wholeDocument.getSubgraphs();
@@ -40,14 +40,13 @@ public class GameWorld {
                 for (Graph subgraph : subgraphs) {
                     if (subgraph.getId().getId().equals("artefacts")) {
                         System.out.println("    Artefacts in this location: ");
-//                        ArrayList<Node> artefactNodes = subgraph.getNodes(false);
-//                        for (Node artefactNode : artefactNodes) {
-//                            System.out.println("        checkpoint0");
-//                            String artefactName = artefactNode.getId().getId();
-//                            String artefactDescription = artefactNode.getAttribute("description").toString();
-//                            System.out.println("        " + artefactName + ": " + artefactDescription);
-//                        }
-                        printArtefactsInSubgraph(subgraph);
+                        ArrayList<Node> artefactNodes = subgraph.getNodes(false);
+                        for (Node artefactNode : artefactNodes) {
+                            // System.out.println("        checkpoint0");
+                            String artefactName = artefactNode.getId().getId();
+                            String artefactDescription = artefactNode.getAttribute("description").toString();
+                            System.out.println("        " + artefactName + ": " + artefactDescription);
+                        }
                     }
                 }
             }
@@ -81,26 +80,6 @@ public class GameWorld {
             throw new RuntimeException(e);
         } catch (ParseException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    private void printArtefactsInSubgraph(Graph subgraph) {
-        // print out everything in this subgraph first
-        System.out.println("        <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-        // print out all statements in this subgraph called "artefacts"
-
-
-        System.out.println("        >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-        ArrayList<Node> artefactNodes = subgraph.getNodes(false);
-        for (Node artefactNode : artefactNodes) {
-            String artefactName = artefactNode.getId().getId();
-            String artefactDescription = artefactNode.getAttribute("description").toString();
-            System.out.println("        " + artefactName + ": " + artefactDescription);
-        }
-
-        ArrayList<Graph> nestedSubgraphs = subgraph.getSubgraphs();
-        for (Graph nestedSubgraph : nestedSubgraphs) {
-            printArtefactsInSubgraph(nestedSubgraph);
         }
     }
 }
