@@ -1,9 +1,19 @@
 package edu.uob.actions;
 
-import edu.uob.GameAction;
+public class Trigger implements ActionComponent{
+    String name;
 
-public class Trigger extends GameAction {
     public Trigger(String name) {
-        super(name);
+        this.name = name;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
     }
 }

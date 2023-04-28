@@ -40,6 +40,7 @@
     <action>
         <triggers>
             <keyphrase>drink</keyphrase>
+            <keyphrase>open</keyphrase>
         </triggers>
         <subjects>
             <entity>potion</entity>

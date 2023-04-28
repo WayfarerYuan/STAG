@@ -14,6 +14,11 @@ public class GameAction {
     private Narration narration;
     public GameAction(String name) {
         this.name = name;
+        this.triggers = new ArrayList<>();
+        this.subjects = new ArrayList<>();
+        this.consumed = new ArrayList<>();
+        this.produced = new ArrayList<>();
+        this.narration = new Narration("");
     }
 
     public String getName() {
