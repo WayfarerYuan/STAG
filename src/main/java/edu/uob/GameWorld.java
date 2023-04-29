@@ -34,7 +34,6 @@ public class GameWorld {
         // use a HashMap to store all the locations and actions
         locations = new HashMap<>();
         actions = new HashMap<>();
-
     }
     void parseGameWorld(File entitiesFile, File actionsFile) throws ParserConfigurationException {
         parseEntitiesFile(entitiesFile);
@@ -54,63 +53,18 @@ public class GameWorld {
                 // Location name
                 String locationName = location.getNodes(false).get(0).getId().getId();
                 // Location description
-                String locationDescription = location.getNodes(false).get(0).getAttribute("description").toString();
+                String locationDescription = location.getNodes(false).get(0).getAttribute("description");
                 Location newLocation = new Location(locationName, locationDescription);
                 System.out.println("\n    set New Location - " + newLocation.getName() + ": " + newLocation.getDescription());
                 ArrayList<Graph> subgraphs = location.getSubgraphs();
                 for (Graph subgraph : subgraphs) {
                     String entityType = subgraph.getId().getId();
                     switch (entityType) {
-                        case "artefacts":
-                            parseEntitiesHelper(subgraph, "Artefacts", newLocation);
-                            break;
-                        case "characters":
-                            parseEntitiesHelper(subgraph, "Characters", newLocation);
-                            break;
-                        case "furniture":
-                            parseEntitiesHelper(subgraph, "Furniture", newLocation);
-                            break;
+                        case "artefacts" -> parseEntitiesHelper(subgraph, "Artefacts", newLocation);
+                        case "characters" -> parseEntitiesHelper(subgraph, "Characters", newLocation);
+                        case "furniture" -> parseEntitiesHelper(subgraph, "Furniture", newLocation);
                     }
                 }
-//                for (Graph subgraph : subgraphs) {
-//                    String entityType = subgraph.getId().getId();
-//                    switch (entityType) {
-//                        case "artefacts":
-//                            System.out.println("    Artefacts in this location: ");
-//                            ArrayList<Node> artefactNodes = subgraph.getNodes(false);
-//                            for (Node artefactNode : artefactNodes) {
-//                                String artefactName = artefactNode.getId().getId();
-//                                String artefactDescription = artefactNode.getAttribute("description").toString();
-//                                Artefact newArtefact = new Artefact(artefactName, artefactDescription);
-//                                newLocation.addArtefact(newArtefact);
-//                                System.out.println("        location added artefact - " + newArtefact.getName() + ": " + newArtefact.getDescription());
-//                            }
-//                            break;
-//                        case "characters":
-//                            System.out.println("    Characters in this location: ");
-//                            ArrayList<Node> characterNodes = subgraph.getNodes(false);
-//                            for (Node characterNode : characterNodes) {
-//                                String characterName = characterNode.getId().getId();
-//                                String characterDescription = characterNode.getAttribute("description").toString();
-//                                Character newCharacter = new Character(characterName, characterDescription);
-//                                newLocation.addCharacter(newCharacter);
-//                                System.out.println("        location added character - " + newCharacter.getName() + ": " + newCharacter.getDescription());
-//                            }
-//                            break;
-//                        case "furniture":
-//                            System.out.println("    Furniture in this location: ");
-//                            ArrayList<Node> furnitureNodes = subgraph.getNodes(false);
-//                            for (Node furnitureNode : furnitureNodes) {
-//                                String furnitureName = furnitureNode.getId().getId();
-//                                String furnitureDescription = furnitureNode.getAttribute("description").toString();
-//                                Furniture newFurniture = new Furniture(furnitureName, furnitureDescription);
-//                                newLocation.addFurniture(newFurniture);
-//                                System.out.println("        location added furniture - " + newFurniture.getName() + ": " + newFurniture.getDescription());
-//                            }
-//                            break;
-//                    }
-//                }
-                // add this location to the locations HashMap
                 if (locations.containsKey(locationName)) {
                     locations.get(locationName).add(newLocation);
                 } else {
@@ -139,9 +93,7 @@ public class GameWorld {
                 System.out.println("    " + source + " -> " + destination);
             }
             System.out.println("----------------------------------");
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (ParseException e) {
+        } catch (FileNotFoundException | ParseException e) {
             throw new RuntimeException(e);
         }
     }
@@ -151,23 +103,23 @@ public class GameWorld {
         ArrayList<Node> entityNodes = subgraph.getNodes(false);
         for (Node entityNode : entityNodes) {
             String entityName = entityNode.getId().getId();
-            String entityDescription = entityNode.getAttribute("description").toString();
+            String entityDescription = entityNode.getAttribute("description");
             switch (entityType) {
-                case "Artefacts":
+                case "Artefacts" -> {
                     Artefact newArtefact = new Artefact(entityName, entityDescription);
                     newLocation.addArtefact(newArtefact);
                     System.out.printf("        location added artefact - %s: %s%n", newArtefact.getName(), newArtefact.getDescription());
-                    break;
-                case "Characters":
+                }
+                case "Characters" -> {
                     Character newCharacter = new Character(entityName, entityDescription);
                     newLocation.addCharacter(newCharacter);
                     System.out.printf("        location added character - %s: %s%n", newCharacter.getName(), newCharacter.getDescription());
-                    break;
-                case "Furniture":
+                }
+                case "Furniture" -> {
                     Furniture newFurniture = new Furniture(entityName, entityDescription);
                     newLocation.addFurniture(newFurniture);
                     System.out.printf("        location added furniture - %s: %s%n", newFurniture.getName(), newFurniture.getDescription());
-                    break;
+                }
             }
         }
     }
@@ -201,16 +153,14 @@ public class GameWorld {
                 newAction.setName(newAction.getTriggers().get(0).getName());
                 newActions.add(newAction);
             }
-            storeActions(newActions); // store all actions into the actions HashMap
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (SAXException e) {
+            this.actions = storeActions(newActions); // store all actions into the actions HashMap
+        } catch (IOException | SAXException e) {
             throw new RuntimeException(e);
         }
     }
 
     //processes the actions file
-    private void parseActionsHelper(Element action, String elementType, GameAction newAction) throws ParserConfigurationException {
+    private void parseActionsHelper(Element action, String elementType, GameAction newAction) throws NullPointerException {
         try {
             System.out.println("    " + elementType + " in this action: ");
             Element elements = (Element)action.getElementsByTagName(elementType).item(0);
@@ -219,25 +169,20 @@ public class GameWorld {
                 if (elementName != null) {
                     GameEntity newEntity = new ActionEntity(elementName, null);
                     switch (elementType) {
-                        case "subjects":
-                            newAction.addSubject(newEntity);
-                            break;
-                        case "consumed":
-                            newAction.addConsumed(newEntity);
-                            break;
-                        case "produced":
-                            newAction.addProduced(newEntity);
-                            break;
+                        case "subjects" -> newAction.addSubject(newEntity);
+                        case "consumed" -> newAction.addConsumed(newEntity);
+                        case "produced" -> newAction.addProduced(newEntity);
                     }
                 }
                 System.out.println("        [" + elementName + "] added to [" + elementType + "]");
             }
         } catch (NullPointerException e) {
             System.out.println("    Error: " + elementType + " is not a valid action component.");
+            throw new RuntimeException(e);
         }
     }
 
-    private HashMap storeActions(ArrayList<GameAction> actions) {
+    private HashMap<String, HashSet<GameAction>> storeActions(ArrayList<GameAction> actions) {
         //HashMap<String,HashSet<GameAction>> actions = new HashMap<String, HashSet<GameAction>>();
         HashMap<String, HashSet<GameAction>> hashedActions = new HashMap<>();
         for (GameAction action : actions) {
