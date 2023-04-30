@@ -1,4 +1,4 @@
-package edu.uob.actions;
+package edu.uob.action.component;
 
 import edu.uob.GameAction;
 

@@ -1,28 +1,22 @@
 package edu.uob;
 
-import com.alexmerz.graphviz.Parser;
-import com.alexmerz.graphviz.objects.Edge;
-import com.alexmerz.graphviz.objects.Graph;
-
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Paths;
-// JPGD
-import java.lang.Object;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.HashSet;
-import java.util.Stack;
+// JPGD
+
 
 /** This class implements the STAG server. */
 public final class GameServer {
 
     private static final char END_OF_TRANSMISSION = 4;
+    HashMap<String, HashSet<GameAction>> hashedActionMap = new HashMap<>();
+    GameFileReader gameFileReader;
 
     public static void main(String[] args) throws IOException, ParserConfigurationException {
         File entitiesFile = Paths.get("config" + File.separator + "extended-entities.dot").toAbsolutePath().toFile();
@@ -44,8 +38,8 @@ public final class GameServer {
     public GameServer(File entitiesFile, File actionsFile) throws ParserConfigurationException {
         // TODO implement your server logic here
         // First parse the entity DOT file (entitiesFile) using JPGD parser
-        GameWorld gameWorld = new GameWorld(entitiesFile, actionsFile);
-        gameWorld.parseGameWorld(entitiesFile, actionsFile);
+        gameFileReader = new GameFileReader(entitiesFile, actionsFile);
+        hashedActionMap = gameFileReader.getActions();
     }
 
     /**
@@ -56,7 +50,9 @@ public final class GameServer {
     */
     public String handleCommand(String command) {
         // TODO implement your server logic here
-        return "";
+        GameCmdTokenizer tokenizer = new GameCmdTokenizer(gameFileReader);
+        ArrayList<String> tokens = tokenizer.tokenize(command);
+        return tokens.toString();
     }
 
     //  === Methods below are there to facilitate server related operations. ===

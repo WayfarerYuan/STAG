@@ -1,9 +1,9 @@
-package edu.uob.actions;
+package edu.uob.action.component;
 
-public class Trigger implements ActionComponent{
+public class KeyPhrase implements ActionComponent{
     String name;
 
-    public Trigger(String name) {
+    public KeyPhrase(String name) {
         this.name = name;
     }
 

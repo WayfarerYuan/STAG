@@ -5,9 +5,9 @@ import com.alexmerz.graphviz.Parser;
 import com.alexmerz.graphviz.objects.Edge;
 import com.alexmerz.graphviz.objects.Graph;
 import com.alexmerz.graphviz.objects.Node;
-import edu.uob.actions.ActionEntity;
-import edu.uob.actions.KeyPhrase;
-import edu.uob.actions.Narration;
+import edu.uob.action.component.ActionEntity;
+import edu.uob.action.component.KeyPhrase;
+import edu.uob.action.component.Narration;
 import edu.uob.entities.*;
 import edu.uob.entities.Character;
 import org.w3c.dom.Document;
@@ -26,16 +26,24 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
-public class GameWorld {
+public class GameFileReader {
     private HashMap<String, HashSet<Location>> locations;
     private HashMap<String, HashSet<GameAction>> actions;
+    private ArrayList<String> allKeyPhrases;
 
-    public GameWorld(File entitiesFile, File actionsFile) {
+    public GameFileReader(File entitiesFile, File actionsFile) {
         // use a HashMap to store all the locations and actions
         locations = new HashMap<>();
         actions = new HashMap<>();
+        allKeyPhrases = new ArrayList<>();
+        try {
+            parseConfigFile(entitiesFile, actionsFile);
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error parsing config file: " + e.getMessage());
+        }
     }
-    void parseGameWorld(File entitiesFile, File actionsFile) throws ParserConfigurationException {
+    void parseConfigFile(File entitiesFile, File actionsFile) throws ParserConfigurationException {
         parseEntitiesFile(entitiesFile);
         parseActionsFile(actionsFile);
     }
@@ -138,6 +146,7 @@ public class GameWorld {
                 for (int j = 0; j < triggers.getElementsByTagName("keyphrase").getLength(); j++) {
                     String triggerPhrase = triggers.getElementsByTagName("keyphrase").item(j).getTextContent();
                     System.out.println("Loaded keyphrase: " + triggerPhrase + " for action: " + action.getAttribute("name"));
+                    allKeyPhrases.add(triggerPhrase);
                     KeyPhrase newKeyPhrase = new KeyPhrase(triggerPhrase);
                     newAction.addTrigger(newKeyPhrase);
                 }
@@ -159,7 +168,6 @@ public class GameWorld {
         }
     }
 
-    //processes the actions file
     private void parseActionsHelper(Element action, String elementType, GameAction newAction) throws NullPointerException {
         try {
             System.out.println("    " + elementType + " in this action: ");
@@ -202,4 +210,15 @@ public class GameWorld {
         return this.actions;
     }
 
+    public HashMap<String, HashSet<GameAction>> getActions() {
+        return actions;
+    }
+
+    public HashMap<String, HashSet<Location>> getLocations() {
+        return locations;
+    }
+
+    public ArrayList<String> getAllKeyPhrases() {
+        return allKeyPhrases;
+    }
 }

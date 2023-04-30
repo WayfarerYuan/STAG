@@ -1,7 +1,7 @@
 package edu.uob;
 
-import edu.uob.actions.KeyPhrase;
-import edu.uob.actions.Narration;
+import edu.uob.action.component.KeyPhrase;
+import edu.uob.action.component.Narration;
 
 import java.util.ArrayList;
 
