@@ -17,6 +17,8 @@ public final class GameServer {
     private static final char END_OF_TRANSMISSION = 4;
     HashMap<String, HashSet<GameAction>> hashedActionMap = new HashMap<>();
     GameFileReader gameFileReader;
+    GameCmdTokenizer gameCmdTokenizer;
+    GameCmdParser gameCmdParser;
 
     public static void main(String[] args) throws IOException, ParserConfigurationException {
         File entitiesFile = Paths.get("config" + File.separator + "extended-entities.dot").toAbsolutePath().toFile();
@@ -50,9 +52,15 @@ public final class GameServer {
     */
     public String handleCommand(String command) {
         // TODO implement your server logic here
-        GameCmdTokenizer tokenizer = new GameCmdTokenizer(gameFileReader);
-        ArrayList<String> tokens = tokenizer.tokenize(command);
-        return tokens.toString();
+        try {
+        gameCmdTokenizer = new GameCmdTokenizer(gameFileReader, command.toLowerCase());
+        //ArrayList<String> tokens = gameCmdTokenizer.tokenize(command.toLowerCase());
+        gameCmdParser = new GameCmdParser(gameFileReader, gameCmdTokenizer);
+        GameAction parsedAction = gameCmdParser.parse();
+        return gameCmdTokenizer.getCmdTokens().toString();
+        } catch (Exception e) {
+            return "Error: " + e.getMessage();
+        }
     }
 
     //  === Methods below are there to facilitate server related operations. ===

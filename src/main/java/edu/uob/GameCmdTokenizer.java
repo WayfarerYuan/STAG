@@ -13,9 +13,10 @@ public class GameCmdTokenizer {
     private GameFileReader gameFileReader;
     private String cmdUserName = "";
 
-    public GameCmdTokenizer(GameFileReader gameFileReader) {
+    public GameCmdTokenizer(GameFileReader gameFileReader, String cmd) {
         this.gameFileReader = gameFileReader;
         setReservedWords();
+        tokenize(cmd);
     }
 
     public ArrayList<String> tokenize(String cmd) {
@@ -41,7 +42,6 @@ public class GameCmdTokenizer {
                 }
             }
         }
-
         return (ArrayList<String>) cmdTokens;
     }
 
@@ -51,6 +51,18 @@ public class GameCmdTokenizer {
         for (String cmd : builtInCmds) {
             reservedPhrases.add(cmd);
         }
+    }
+
+    public String getCmdUserName() {
+        return cmdUserName;
+    }
+
+    public ArrayList<String> getCmdTokens() {
+        return (ArrayList<String>) cmdTokens;
+    }
+
+    public ArrayList<String> getReservedPhrases() {
+        return (ArrayList<String>) reservedPhrases;
     }
 
 }

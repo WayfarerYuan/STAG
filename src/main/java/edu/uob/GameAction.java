@@ -2,19 +2,21 @@ package edu.uob;
 
 import edu.uob.action.component.KeyPhrase;
 import edu.uob.action.component.Narration;
+import edu.uob.action.component.Trigger;
 
 import java.util.ArrayList;
 
 public class GameAction {
     private String name;
-    private ArrayList<KeyPhrase> triggers;
+    private Trigger trigger;
+    private ArrayList<KeyPhrase> allTriggers;
     private ArrayList<GameEntity> subjects;
     private ArrayList<GameEntity> consumed;
     private ArrayList<GameEntity> produced;
     private Narration narration;
     public GameAction(String name) {
         this.name = name;
-        this.triggers = new ArrayList<>();
+        this.allTriggers = new ArrayList<>();
         this.subjects = new ArrayList<>();
         this.consumed = new ArrayList<>();
         this.produced = new ArrayList<>();
@@ -24,8 +26,11 @@ public class GameAction {
     public String getName() {
         return name;
     }
+    public Trigger getTrigger() {
+        return trigger;
+    }
     public ArrayList<KeyPhrase> getTriggers() {
-        return triggers;
+        return allTriggers;
     }
     public ArrayList<GameEntity> getSubjects() {
         return subjects;
@@ -42,8 +47,11 @@ public class GameAction {
     public void setName(String name) {
         this.name = name;
     }
+    public void setTrigger(Trigger trigger) {
+        this.trigger = trigger;
+    }
     public void setTriggers(ArrayList<KeyPhrase> triggers) {
-        this.triggers = triggers;
+        this.allTriggers = triggers;
     }
     public void setSubjects(ArrayList<GameEntity> subjects) {
         this.subjects = subjects;
@@ -58,7 +66,7 @@ public class GameAction {
         this.narration = narration;
     }
     public void addTrigger(KeyPhrase trigger) {
-        triggers.add(trigger);
+        allTriggers.add(trigger);
     }
     public void addSubject(GameEntity subject) {
         subjects.add(subject);

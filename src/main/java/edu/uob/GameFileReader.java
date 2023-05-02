@@ -162,7 +162,8 @@ public class GameFileReader {
                 newAction.setName(newAction.getTriggers().get(0).getName());
                 newActions.add(newAction);
             }
-            this.actions = storeActions(newActions); // store all actions into the actions HashMap
+            addBuiltInCmds(newActions);
+            this.actions = hashActions(newActions); // store all actions into the actions HashMap
         } catch (IOException | SAXException e) {
             throw new RuntimeException(e);
         }
@@ -190,7 +191,27 @@ public class GameFileReader {
         }
     }
 
-    private HashMap<String, HashSet<GameAction>> storeActions(ArrayList<GameAction> actions) {
+    private void addBuiltInCmds(ArrayList<GameAction> newActions) {
+        // add built-in commands
+        GameAction inventory = new GameAction("inventory");
+        inventory.addTrigger(new KeyPhrase("inventory"));
+        inventory.addTrigger(new KeyPhrase("inv"));
+        newActions.add(inventory);
+        GameAction get = new GameAction("get");
+        get.addTrigger(new KeyPhrase("get"));
+        newActions.add(get);
+        GameAction drop = new GameAction("drop");
+        drop.addTrigger(new KeyPhrase("drop"));
+        newActions.add(drop);
+        GameAction goTo = new GameAction("goto");
+        goTo.addTrigger(new KeyPhrase("goto"));
+        newActions.add(goTo);
+        GameAction look = new GameAction("look");
+        look.addTrigger(new KeyPhrase("look"));
+        newActions.add(look);
+    }
+
+    private HashMap<String, HashSet<GameAction>> hashActions(ArrayList<GameAction> actions) {
         //HashMap<String,HashSet<GameAction>> actions = new HashMap<String, HashSet<GameAction>>();
         HashMap<String, HashSet<GameAction>> hashedActions = new HashMap<>();
         for (GameAction action : actions) {
@@ -207,10 +228,15 @@ public class GameFileReader {
                 }
             }
         }
-        return this.actions;
+        return hashedActions;
     }
 
     public HashMap<String, HashSet<GameAction>> getActions() {
+        // Testing
+        System.out.println("[FileReader.getActions()]:");
+        for (String key : actions.keySet()) {
+            System.out.println("    " + key + ": " + actions.get(key));
+        }
         return actions;
     }
 

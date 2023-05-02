@@ -9,7 +9,7 @@ public class Narration implements ActionComponent{
 
     @Override
     public String getName() {
-        return null;
+        return name;
     }
 
     @Override
