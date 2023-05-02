@@ -27,13 +27,15 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 public class GameFileReader {
-    private HashMap<String, HashSet<Location>> locations;
+    private ArrayList<Location> locations;
     private HashMap<String, HashSet<GameAction>> actions;
     private ArrayList<String> allKeyPhrases;
 
+    private Location defaultLocation;
+
     public GameFileReader(File entitiesFile, File actionsFile) {
         // use a HashMap to store all the locations and actions
-        locations = new HashMap<>();
+        locations = new ArrayList<>();
         actions = new HashMap<>();
         allKeyPhrases = new ArrayList<>();
         try {
@@ -56,14 +58,14 @@ public class GameFileReader {
             Graph wholeDocument = parser.getGraphs().get(0);
             ArrayList<Graph> sections = wholeDocument.getSubgraphs();
             ArrayList<Graph> locationsFromFile = sections.get(0).getSubgraphs();
-            System.out.println("All locations: ");
+            //System.out.println("All locations: ");
             for (Graph location : locationsFromFile) {
                 // Location name
                 String locationName = location.getNodes(false).get(0).getId().getId();
                 // Location description
                 String locationDescription = location.getNodes(false).get(0).getAttribute("description");
                 Location newLocation = new Location(locationName, locationDescription);
-                System.out.println("\n    set New Location - " + newLocation.getName() + ": " + newLocation.getDescription());
+                //System.out.println("\n    set New Location - " + newLocation.getName() + ": " + newLocation.getDescription());
                 ArrayList<Graph> subgraphs = location.getSubgraphs();
                 for (Graph subgraph : subgraphs) {
                     String entityType = subgraph.getId().getId();
@@ -73,41 +75,48 @@ public class GameFileReader {
                         case "furniture" -> parseEntitiesHelper(subgraph, "Furniture", newLocation);
                     }
                 }
-                if (locations.containsKey(locationName)) {
-                    locations.get(locationName).add(newLocation);
-                } else {
-                    HashSet<Location> newLocationSet = new HashSet<>();
-                    newLocationSet.add(newLocation);
-                    locations.put(locationName, newLocationSet);
-                }
+//                if (locations.containsKey(locationName)) {
+//                    locations.get(locationName).add(newLocation);
+//                } else {
+//                    HashSet<Location> newLocationSet = new HashSet<>();
+//                    newLocationSet.add(newLocation);
+//                    locations.put(locationName, newLocationSet);
+//                }
+                locations.add(newLocation);
             }
-            System.out.println("----------------------------------");
+            //System.out.println("----------------------------------");
             // sections.get(1) is the paths
             ArrayList<Edge> paths = sections.get(1).getEdges();
             // print out all paths
-            System.out.println("All paths: ");
+            //System.out.println("All paths: ");
             for (Edge path : paths) {
                 String source = path.getSource().getNode().getId().getId();
                 String destination = path.getTarget().getNode().getId().getId();
                 Path newPath = new Path(source, destination);
                 // add this path to the corresponding locations
                 try {
-                    for (Location location : locations.get(source)) {
-                        location.addPath(newPath);
+//                    for (Location location : locations.get(source)) {
+//                        location.addPath(newPath);
+//                    }
+                    for (Location location : locations) {
+                        if (location.getName().equals(source)) {
+                            location.addPath(newPath);
+                        }
                     }
                 } catch (NullPointerException e) {
                     System.out.println("    Error: " + source + " is not a valid location name.");
                 }
-                System.out.println("    " + source + " -> " + destination);
+                //System.out.println("    " + source + " -> " + destination);
             }
-            System.out.println("----------------------------------");
+            defaultLocation = locations.get(0);
+            //System.out.println("----------------------------------");
         } catch (FileNotFoundException | ParseException e) {
             throw new RuntimeException(e);
         }
     }
 
     private void parseEntitiesHelper(Graph subgraph, String entityType, Location newLocation) {
-        System.out.printf("    %s in this location:%n", entityType);
+        //System.out.printf("    %s in this location:%n", entityType);
         ArrayList<Node> entityNodes = subgraph.getNodes(false);
         for (Node entityNode : entityNodes) {
             String entityName = entityNode.getId().getId();
@@ -116,17 +125,17 @@ public class GameFileReader {
                 case "Artefacts" -> {
                     Artefact newArtefact = new Artefact(entityName, entityDescription);
                     newLocation.addArtefact(newArtefact);
-                    System.out.printf("        location added artefact - %s: %s%n", newArtefact.getName(), newArtefact.getDescription());
+                    //System.out.printf("        location added artefact - %s: %s%n", newArtefact.getName(), newArtefact.getDescription());
                 }
                 case "Characters" -> {
                     Character newCharacter = new Character(entityName, entityDescription);
                     newLocation.addCharacter(newCharacter);
-                    System.out.printf("        location added character - %s: %s%n", newCharacter.getName(), newCharacter.getDescription());
+                    //System.out.printf("        location added character - %s: %s%n", newCharacter.getName(), newCharacter.getDescription());
                 }
                 case "Furniture" -> {
                     Furniture newFurniture = new Furniture(entityName, entityDescription);
                     newLocation.addFurniture(newFurniture);
-                    System.out.printf("        location added furniture - %s: %s%n", newFurniture.getName(), newFurniture.getDescription());
+                    //System.out.printf("        location added furniture - %s: %s%n", newFurniture.getName(), newFurniture.getDescription());
                 }
             }
         }
@@ -145,7 +154,7 @@ public class GameFileReader {
                 GameAction newAction = new GameAction(null);
                 for (int j = 0; j < triggers.getElementsByTagName("keyphrase").getLength(); j++) {
                     String triggerPhrase = triggers.getElementsByTagName("keyphrase").item(j).getTextContent();
-                    System.out.println("Loaded keyphrase: " + triggerPhrase + " for action: " + action.getAttribute("name"));
+                    //System.out.println("Loaded keyphrase: " + triggerPhrase + " for action: " + action.getAttribute("name"));
                     allKeyPhrases.add(triggerPhrase);
                     KeyPhrase newKeyPhrase = new KeyPhrase(triggerPhrase);
                     newAction.addTrigger(newKeyPhrase);
@@ -154,11 +163,11 @@ public class GameFileReader {
                 parseActionsHelper(action, "consumed", newAction);
                 parseActionsHelper(action, "produced", newAction);
                 String narration = action.getElementsByTagName("narration").item(0).getTextContent();
-                System.out.println("    Narration: " + narration);
+                //System.out.println("    Narration: " + narration);
                 // Narration newNarration = new Narration(narration);
                 // newAction.setNarration(newNarration);
                 newAction.setNarration(new Narration(narration));
-                System.out.println("----------------------------------");
+                //System.out.println("----------------------------------");
                 newAction.setName(newAction.getTriggers().get(0).getName());
                 newActions.add(newAction);
             }
@@ -171,7 +180,7 @@ public class GameFileReader {
 
     private void parseActionsHelper(Element action, String elementType, GameAction newAction) throws NullPointerException {
         try {
-            System.out.println("    " + elementType + " in this action: ");
+            //System.out.println("    " + elementType + " in this action: ");
             Element elements = (Element)action.getElementsByTagName(elementType).item(0);
             for (int i = 0; i < elements.getElementsByTagName("entity").getLength(); i++) {
                 String elementName = elements.getElementsByTagName("entity").item(i).getTextContent();
@@ -183,32 +192,59 @@ public class GameFileReader {
                         case "produced" -> newAction.addProduced(newEntity);
                     }
                 }
-                System.out.println("        [" + elementName + "] added to [" + elementType + "]");
+                //System.out.println("        [" + elementName + "] added to [" + elementType + "]");
             }
         } catch (NullPointerException e) {
-            System.out.println("    Error: " + elementType + " is not a valid action component.");
+            //System.out.println("    Error: " + elementType + " is not a valid action component.");
+            throw new RuntimeException("[GameFileReader] Error: " + elementType + " is not a valid action component.");
+        }
+    }
+
+    private void addBuiltInCmds(ArrayList<GameAction> newActions) throws RuntimeException{
+        // add built-in commands
+        try {
+            GameAction inventory = new GameAction("inventory");
+            inventory.addTrigger(new KeyPhrase("inventory"));
+            inventory.addTrigger(new KeyPhrase("inv"));
+            inventory.isBuiltIn = true;
+            if (!isCmdAlreadyExists(newActions, "inventory")) newActions.add(inventory);
+
+            GameAction get = new GameAction("get");
+            get.addTrigger(new KeyPhrase("get"));
+            get.isBuiltIn = true;
+            if (!isCmdAlreadyExists(newActions, "get")) newActions.add(get);
+
+            GameAction drop = new GameAction("drop");
+            drop.addTrigger(new KeyPhrase("drop"));
+            drop.isBuiltIn = true;
+            if (!isCmdAlreadyExists(newActions, "drop")) newActions.add(drop);
+
+            GameAction goTo = new GameAction("goto");
+            goTo.addTrigger(new KeyPhrase("goto"));
+            goTo.isBuiltIn = true;
+            if (!isCmdAlreadyExists(newActions, "goto")) newActions.add(goTo);
+
+            GameAction look = new GameAction("look");
+            look.addTrigger(new KeyPhrase("look"));
+            look.isBuiltIn = true;
+            if (!isCmdAlreadyExists(newActions, "look")) newActions.add(look);
+
+            GameAction health = new GameAction("health");
+            health.addTrigger(new KeyPhrase("health"));
+            health.isBuiltIn = true;
+            if (!isCmdAlreadyExists(newActions, "health")) newActions.add(health);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void addBuiltInCmds(ArrayList<GameAction> newActions) {
-        // add built-in commands
-        GameAction inventory = new GameAction("inventory");
-        inventory.addTrigger(new KeyPhrase("inventory"));
-        inventory.addTrigger(new KeyPhrase("inv"));
-        newActions.add(inventory);
-        GameAction get = new GameAction("get");
-        get.addTrigger(new KeyPhrase("get"));
-        newActions.add(get);
-        GameAction drop = new GameAction("drop");
-        drop.addTrigger(new KeyPhrase("drop"));
-        newActions.add(drop);
-        GameAction goTo = new GameAction("goto");
-        goTo.addTrigger(new KeyPhrase("goto"));
-        newActions.add(goTo);
-        GameAction look = new GameAction("look");
-        look.addTrigger(new KeyPhrase("look"));
-        newActions.add(look);
+    private boolean isCmdAlreadyExists(ArrayList<GameAction> newActions, String cmdName) {
+        for (GameAction action : newActions) {
+            if (action.getName().equals(cmdName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private HashMap<String, HashSet<GameAction>> hashActions(ArrayList<GameAction> actions) {
@@ -219,12 +255,12 @@ public class GameFileReader {
                 String triggerName = trigger.getName();
                 if (hashedActions.containsKey(triggerName)) {
                     hashedActions.get(triggerName).add(action);
-                    System.out.println("    Added action: " + action.getName() + " to trigger: " + triggerName);
+                    //System.out.println("    Added action: " + action.getName() + " to trigger: " + triggerName);
                 } else {
                     HashSet<GameAction> newActionSet = new HashSet<>();
                     newActionSet.add(action);
                     hashedActions.put(triggerName, newActionSet);
-                    System.out.println("    New hashset created for trigger: " + triggerName);
+                    //System.out.println("    New hashset created for trigger: " + triggerName);
                 }
             }
         }
@@ -233,18 +269,22 @@ public class GameFileReader {
 
     public HashMap<String, HashSet<GameAction>> getActions() {
         // Testing
-        System.out.println("[FileReader.getActions()]:");
-        for (String key : actions.keySet()) {
-            System.out.println("    " + key + ": " + actions.get(key));
-        }
+//        System.out.println("[FileReader.getActions()]:");
+//        for (String key : actions.keySet()) {
+//            System.out.println("    " + key + ": " + actions.get(key));
+//        }
         return actions;
     }
 
-    public HashMap<String, HashSet<Location>> getLocations() {
+    public ArrayList<Location> getLocations() {
         return locations;
     }
 
     public ArrayList<String> getAllKeyPhrases() {
         return allKeyPhrases;
+    }
+
+    public Location getStartingLocation() {
+        return defaultLocation;
     }
 }

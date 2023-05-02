@@ -19,6 +19,8 @@ public final class GameServer {
     GameFileReader gameFileReader;
     GameCmdTokenizer gameCmdTokenizer;
     GameCmdParser gameCmdParser;
+    GameWorld gameWorld;
+    GameCmdInterp gameCmdInterp;
 
     public static void main(String[] args) throws IOException, ParserConfigurationException {
         File entitiesFile = Paths.get("config" + File.separator + "extended-entities.dot").toAbsolutePath().toFile();
@@ -41,6 +43,7 @@ public final class GameServer {
         // TODO implement your server logic here
         // First parse the entity DOT file (entitiesFile) using JPGD parser
         gameFileReader = new GameFileReader(entitiesFile, actionsFile);
+        gameWorld = new GameWorld(gameFileReader);
         hashedActionMap = gameFileReader.getActions();
     }
 
@@ -53,11 +56,17 @@ public final class GameServer {
     public String handleCommand(String command) {
         // TODO implement your server logic here
         try {
-        gameCmdTokenizer = new GameCmdTokenizer(gameFileReader, command.toLowerCase());
+        gameCmdTokenizer = new GameCmdTokenizer(gameFileReader, gameWorld, command.toLowerCase());
         //ArrayList<String> tokens = gameCmdTokenizer.tokenize(command.toLowerCase());
         gameCmdParser = new GameCmdParser(gameFileReader, gameCmdTokenizer);
         GameAction parsedAction = gameCmdParser.parse();
-        return gameCmdTokenizer.getCmdTokens().toString();
+        /* --- DEBUGGING --- */
+        if (gameCmdParser.isGrammarOK) {
+            System.out.println("[Server] Command is grammatically correct.");
+        }
+        gameCmdInterp = new GameCmdInterp(gameWorld, gameCmdTokenizer.getPlayerFromCmd(), parsedAction);
+        String resMsg = gameCmdInterp.interpret();
+        return resMsg;
         } catch (Exception e) {
             return "Error: " + e.getMessage();
         }

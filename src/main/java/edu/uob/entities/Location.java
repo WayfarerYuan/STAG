@@ -32,6 +32,9 @@ public class Location extends GameEntity {
     public void addArtefact(Artefact artefact) {
         artefacts.add(artefact);
     }
+    public void removeArtefact(Artefact artefact) {
+        artefacts.remove(artefact);
+    }
     /* ---------- Paths ---------- */
     public ArrayList<Path> getPaths() {
         return paths;
@@ -41,6 +44,9 @@ public class Location extends GameEntity {
     }
     public void addPath(Path path) {
         paths.add(path);
+    }
+    public void removePath(Path path) {
+        paths.remove(path);
     }
     /* ---------- Character ---------- */
     public ArrayList<Character> getCharacters() {
@@ -52,6 +58,9 @@ public class Location extends GameEntity {
     public void addCharacter(Character character) {
         characters.add(character);
     }
+    public void removeCharacter(Character character) {
+        characters.remove(character);
+    }
     /* ---------- Furniture ---------- */
     public ArrayList<Furniture> getFurnitures() {
         return furnitures;
@@ -61,5 +70,8 @@ public class Location extends GameEntity {
     }
     public void addFurniture(Furniture furniture) {
         furnitures.add(furniture);
+    }
+    public void removeFurniture(Furniture furniture) {
+        furnitures.remove(furniture);
     }
 }
