@@ -21,6 +21,7 @@ public final class GameServer {
     GameCmdParser gameCmdParser;
     GameWorld gameWorld;
     GameCmdInterp gameCmdInterp;
+    GameAction gameAction;
 
     public static void main(String[] args) throws IOException, ParserConfigurationException {
         File entitiesFile = Paths.get("config" + File.separator + "extended-entities.dot").toAbsolutePath().toFile();
@@ -59,12 +60,15 @@ public final class GameServer {
         gameCmdTokenizer = new GameCmdTokenizer(gameFileReader, gameWorld, command.toLowerCase());
         //ArrayList<String> tokens = gameCmdTokenizer.tokenize(command.toLowerCase());
         gameCmdParser = new GameCmdParser(gameFileReader, gameCmdTokenizer);
-        GameAction parsedAction = gameCmdParser.parse();
+        //GameAction parsedAction = gameCmdParser.parse();
+        gameAction = gameCmdParser.parse();
         /* --- DEBUGGING --- */
         if (gameCmdParser.isGrammarOK) {
             System.out.println("[Server] Command is grammatically correct.");
         }
-        gameCmdInterp = new GameCmdInterp(gameWorld, gameCmdTokenizer.getPlayerFromCmd(), parsedAction);
+        gameCmdInterp = new GameCmdInterp(gameWorld, gameCmdTokenizer.getPlayerFromCmd(), gameAction);
+        // Debugging
+        System.out.println("[Server] Command is semantically correct.");
         String resMsg = gameCmdInterp.interpret();
         return resMsg;
         } catch (Exception e) {

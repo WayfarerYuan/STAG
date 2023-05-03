@@ -35,4 +35,8 @@ public class GameWorld {
     public ArrayList<GamePlayer> getPlayersList() {
         return players;
     }
+
+    public ArrayList<Location> getLocationsList() {
+        return locations;
+    }
 }

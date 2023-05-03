@@ -22,6 +22,8 @@ public class GameCmdTokenizer {
     }
 
     public ArrayList<String> tokenize(String cmd) {
+        //debug
+        System.out.println("[Tokenizer] Tokenizing command: " + cmd);
         cmdTokens.clear();
         cmdUserName = cmd.split(":")[0];
         try {

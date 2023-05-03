@@ -28,6 +28,8 @@ public class GameCmdParser {
 
     public GameAction parse() throws IllegalArgumentException{
         try {
+            // debug
+            System.out.println("[Parser] Parsing.parse() get cmd: " + cmdTokens.toString());
             parsedTrigger = findTrigger(cmdTokens);
 //            parsedAction = new GameAction(parsedTrigger.getName());
 //            parsedAction.setTrigger(parsedTrigger);
@@ -65,6 +67,8 @@ public class GameCmdParser {
 //        parsedAction.setTarget(findTarget(cmdTokens));
 //        parsedAction.setConsumed(findConsumed(cmdTokens));
 //        parsedAction.setProduced(findProduced(cmdTokens));
+            // debug
+            System.out.println("[Parser] parse() get parsedAction: " + parsedAction.getName() + " " + parsedAction.getTrigger().getName() + " " + parsedAction.getSubjects().toString() + " " + parsedAction.getConsumed().toString() + " " + parsedAction.getProduced().toString() + " " + parsedAction.getNarration().getName());
             return parsedAction;
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("[Parser] " + e.getMessage());
@@ -212,7 +216,12 @@ public class GameCmdParser {
                     case "get", "drop", "goto":
                         if (cmdTokens.size() ==2) {
                             GameEntity targetEntity = new ActionEntity(cmdTokens.get(1),null);
+                            System.out.println("[Parser!] Should add Target Entity: " + targetEntity.getName());
+                            //gameAction.addSubject(targetEntity);
+                            // reset the subjects and add the target entity
+                            gameAction.getSubjects().clear();
                             gameAction.addSubject(targetEntity);
+                            System.out.println("[Parser!] Added Target Entity: " + gameAction.getSubjects().get(0).getName());
                             return true;
                         }
                         else {

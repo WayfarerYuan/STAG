@@ -13,7 +13,7 @@ public class GamePlayer extends Character {
     private Location location;
     private ArrayList<GameEntity> inventory;
     private int health;
-    private final int maxHealth = 100;
+    private final int maxHealth = 3;
 
     public GamePlayer(GameFileReader gameFileReader, GameWorld gameWorld, String name) {
         super(name, "'Real Player'");
@@ -48,6 +48,12 @@ public class GamePlayer extends Character {
 
     public void addToInventory(GameEntity item) {
         inventory.add(item);
+        // debug
+        System.out.println("[Player] Added " + item.getName() + " to inventory.");
+        System.out.println("[Player] Inventory:");
+        for (GameEntity entity : inventory) {
+            System.out.println(entity.getName());
+        }
     }
 
     public void removeFromInventory(GameEntity item) {
