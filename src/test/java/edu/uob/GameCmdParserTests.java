@@ -28,8 +28,8 @@ public class GameCmdParserTests {
 
     @Test
     void testBuildInCmd() {
-
         String response = sendCommandToServer("simon: look");
-
+        response = response.toLowerCase();
+        assertTrue(response.contains("cabin"), "Did not see the name of the current room in response to look");
     }
 }

@@ -1,5 +1,6 @@
 package edu.uob;
 
+import edu.uob.entities.Artefact;
 import edu.uob.entities.Character;
 import edu.uob.entities.Location;
 
@@ -39,7 +40,12 @@ public class GamePlayer extends Character {
     }
 
     public void goToLocation(Location newLocation) {
+        // delete the player from the old location
+        location.removeCharacter(this);
+        // move the player to the new location
         this.location = newLocation;
+        // add the player to the new location
+        location.addCharacter(this);
     }
 
     public ArrayList<GameEntity> getInventory() {
@@ -57,14 +63,38 @@ public class GamePlayer extends Character {
     }
 
     public void removeFromInventory(GameEntity item) {
-        inventory.remove(item);
+        // inventory.remove(item);
+        inventory.removeIf(entity -> entity.getName().equals(item.getName()));
     }
 
-    public String getHealth() {
-        return "Your health is " + health + "/" + maxHealth;
+    public String getHealthStr() {
+        return "Your health is " + health + " / " + maxHealth;
+    }
+
+    public int getHealth() {
+        return health;
     }
 
     public void setHealth(int newHealth) {
+        if (newHealth > maxHealth) {
+            newHealth = maxHealth;
+        } else if (newHealth <= 0) {
+            newHealth = 0;
+            // TODO: game over
+            die();
+        }
         health = newHealth;
+    }
+
+    public void die() {
+        System.out.println("You died!");
+        // Drop down all the entities inside your inventory to the current location
+        for (GameEntity entity : inventory) {
+            location.addArtefact((Artefact) entity);
+        }
+        inventory.clear();
+        setHealth(maxHealth);
+        // Move the player to the starting location
+        goToLocation(gameFileReader.getStartingLocation());
     }
 }

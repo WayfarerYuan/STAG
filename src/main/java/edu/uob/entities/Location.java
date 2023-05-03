@@ -33,7 +33,13 @@ public class Location extends GameEntity {
         artefacts.add(artefact);
     }
     public void removeArtefact(Artefact artefact) {
-        artefacts.remove(artefact);
+        //artefacts.remove(artefact);
+        for (Artefact a : artefacts) {
+            if (a.getName().equals(artefact.getName())) {
+                artefacts.remove(a);
+                break;
+            }
+        }
     }
     /* ---------- Paths ---------- */
     public ArrayList<Path> getPaths() {
@@ -46,7 +52,13 @@ public class Location extends GameEntity {
         paths.add(path);
     }
     public void removePath(Path path) {
-        paths.remove(path);
+        //paths.remove(path);
+        for (Path p : paths) {
+            if (p.getName().equals(path.getName())) {
+                paths.remove(p);
+                break;
+            }
+        }
     }
     /* ---------- Character ---------- */
     public ArrayList<Character> getCharacters() {
@@ -59,7 +71,13 @@ public class Location extends GameEntity {
         characters.add(character);
     }
     public void removeCharacter(Character character) {
-        characters.remove(character);
+        //characters.remove(character);
+        for (Character c : characters) {
+            if (c.getName().equals(character.getName())) {
+                characters.remove(c);
+                break;
+            }
+        }
     }
     /* ---------- Furniture ---------- */
     public ArrayList<Furniture> getFurnitures() {
@@ -72,11 +90,12 @@ public class Location extends GameEntity {
         furnitures.add(furniture);
     }
     public void removeFurniture(Furniture furniture) {
-        furnitures.remove(furniture);
-        //debug
-        System.out.println("[Location] After removing " + furniture.getName() + " from " + this.getName() + " furniture list:");
+        //furnitures.remove(furniture);
         for (Furniture f : furnitures) {
-            System.out.println(f.getName());
+            if (f.getName().equals(furniture.getName())) {
+                furnitures.remove(f);
+                break;
+            }
         }
     }
 }
