@@ -73,5 +73,10 @@ public class Location extends GameEntity {
     }
     public void removeFurniture(Furniture furniture) {
         furnitures.remove(furniture);
+        //debug
+        System.out.println("[Location] After removing " + furniture.getName() + " from " + this.getName() + " furniture list:");
+        for (Furniture f : furnitures) {
+            System.out.println(f.getName());
+        }
     }
 }

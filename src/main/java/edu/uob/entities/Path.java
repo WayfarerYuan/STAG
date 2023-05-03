@@ -1,10 +1,13 @@
 package edu.uob.entities;
 
-public class Path {
+import edu.uob.GameEntity;
+
+public class Path extends GameEntity {
     private String source;
     private String destination;
 
     public Path(String source, String destination) {
+        super(source + " to " + destination, "A path from " + source + " to " + destination + ".");
         this.source = source;
         this.destination = destination;
     }

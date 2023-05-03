@@ -46,8 +46,8 @@ public class GameCmdInterp {
                 return goTo(action.getSubjects().get(0).getName());
             case "look":
                 return look();
-//            case "health":
-//                return printHealth();
+            case "health":
+                return player.getHealth();
             default:
                 return "Invalid action";
         }
@@ -110,12 +110,6 @@ public class GameCmdInterp {
 
     private String look() {
         String resMsg = "";
-//        resMsg += player.getLocation().getDescription() + "\n";
-//        resMsg += "You can see the following items in this location: \n";
-//        for (GameEntity item : player.getLocation().getArtefacts()) {
-//            resMsg += item.getName() + "\n";
-//        }
-//        return resMsg;
         ArrayList<Character> characters = player.getLocation().getCharacters();
         ArrayList<Artefact> artefacts = player.getLocation().getArtefacts();
         ArrayList<Furniture> furnitures = player.getLocation().getFurnitures();
@@ -178,7 +172,96 @@ public class GameCmdInterp {
         }
         return resMsg;
     }
-    private static String exeCustomAction(GameAction action) {
-        return "";
+    private String exeCustomAction(GameAction action) {
+        // Load the action
+        ArrayList<GameEntity> subjects = action.getSubjects();
+        ArrayList<GameEntity> consumed = action.getConsumed();
+        ArrayList<GameEntity> produced = action.getProduced();
+        String narration = action.getNarration().getName();
+        String resMsg = "";
+        // Check if subjects exist in the location
+        if (!checkSubjects(subjects)) {
+            resMsg = "Some of the subjects are not in this location.";
+            return resMsg;
+        }
+        // Check if consumed exist in the inventory or location
+        if (!checkSubjects(consumed)) {
+            resMsg = "Some of the consumed items are not in your inventory or this location.";
+            return resMsg;
+        }
+        // consume the consumed items
+        for (GameEntity item : consumed) {
+            if (item instanceof Artefact) {
+                player.getLocation().removeArtefact((Artefact) item);
+            } else if (item instanceof Character) {
+                player.getLocation().removeCharacter((Character) item);
+            } else if (item instanceof Furniture) {
+                System.out.println("Removing furniture " + item.getName() + " from location " + player.getLocation().getName());
+                player.getLocation().removeFurniture((Furniture) item);
+                System.out.println("After action, remaining furniture in location " + player.getLocation().getName() + ":");
+                for (Furniture furniture : player.getLocation().getFurnitures()) {
+                    System.out.println("\t" + furniture.getName());
+                }
+            } else if (item instanceof Path) {
+                player.getLocation().removePath((Path) item);
+            }
+        }
+        // produce the produced items
+        for (GameEntity item : produced) {
+            if (item instanceof Artefact) {
+                player.getLocation().addArtefact((Artefact) item);
+            } else if (item instanceof Character) {
+                player.getLocation().addCharacter((Character) item);
+            } else if (item instanceof Furniture) {
+                player.getLocation().addFurniture((Furniture) item);
+            } else if (item instanceof Path) {
+                player.getLocation().addPath((Path) item);
+            }
+        }
+        resMsg = narration;
+        return resMsg;
+    }
+
+    private boolean checkSubjects(ArrayList<GameEntity> subjects) {
+        boolean res = false;
+        for (GameEntity subject : subjects) {
+            if (subject instanceof Artefact) {
+                System.out.println("Subject " + subject.getName() + " is an artefact.");
+                // check if the artefact is in the player's inventory
+                ArrayList<GameEntity> inventory = player.getInventory();
+                for (GameEntity item : inventory) {
+                    if (item instanceof Artefact) {
+                        if (item.getName().equals(subject.getName())) {
+                            System.out.println("Subject " + subject.getName() + " is in the player's inventory.");
+                            res = true;
+                            break;
+                        }
+                    }
+                }
+            } else if (subject instanceof Character) {
+                System.out.println("Subject " + subject.getName() + " is a character.");
+                // check if the character is in the location
+                ArrayList<Character> characters = player.getLocation().getCharacters();
+                for (Character character : characters) {
+                    if (character.getName().equals(subject.getName())) {
+                        System.out.println("Subject " + subject.getName() + " is in the player's location.");
+                        res = true;
+                        break;
+                    }
+                }
+            } else if (subject instanceof Furniture) {
+                System.out.println("Subject " + subject.getName() + " is a furniture.");
+                // check if the furniture is in the location
+                ArrayList<Furniture> furnitures = player.getLocation().getFurnitures();
+                for (Furniture furniture : furnitures) {
+                    if (furniture.getName().equals(subject.getName())) {
+                        System.out.println("Subject " + subject.getName() + " is in the player's location.");
+                        res = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return res;
     }
 }

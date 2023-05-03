@@ -30,6 +30,12 @@ public class GameFileReader {
     private ArrayList<Location> locations;
     private HashMap<String, HashSet<GameAction>> actions;
     private ArrayList<String> allKeyPhrases;
+    private ArrayList<GameEntity> allEntities;
+    private ArrayList<Artefact> allArtefacts;
+    private ArrayList<Character> allCharacters;
+    private ArrayList<Furniture> allFurniture;
+    private ArrayList<Location> allLocations;
+    private ArrayList<Path> allPaths;
 
     private Location defaultLocation;
 
@@ -38,6 +44,12 @@ public class GameFileReader {
         locations = new ArrayList<>();
         actions = new HashMap<>();
         allKeyPhrases = new ArrayList<>();
+        allEntities = new ArrayList<>();
+        allArtefacts = new ArrayList<>();
+        allCharacters = new ArrayList<>();
+        allFurniture = new ArrayList<>();
+        allLocations = new ArrayList<>();
+        allPaths = new ArrayList<>();
         try {
             parseConfigFile(entitiesFile, actionsFile);
         } catch (ParserConfigurationException e) {
@@ -83,6 +95,8 @@ public class GameFileReader {
 //                    locations.put(locationName, newLocationSet);
 //                }
                 locations.add(newLocation);
+                allLocations.add(newLocation);
+                allEntities.add(newLocation);
             }
             //System.out.println("----------------------------------");
             // sections.get(1) is the paths
@@ -93,6 +107,8 @@ public class GameFileReader {
                 String source = path.getSource().getNode().getId().getId();
                 String destination = path.getTarget().getNode().getId().getId();
                 Path newPath = new Path(source, destination);
+                allPaths.add(newPath);
+                allEntities.add(newPath);
                 // add this path to the corresponding locations
                 try {
 //                    for (Location location : locations.get(source)) {
@@ -125,16 +141,22 @@ public class GameFileReader {
                 case "Artefacts" -> {
                     Artefact newArtefact = new Artefact(entityName, entityDescription);
                     newLocation.addArtefact(newArtefact);
+                    allArtefacts.add(newArtefact);
+                    allEntities.add(newArtefact);
                     //System.out.printf("        location added artefact - %s: %s%n", newArtefact.getName(), newArtefact.getDescription());
                 }
                 case "Characters" -> {
                     Character newCharacter = new Character(entityName, entityDescription);
                     newLocation.addCharacter(newCharacter);
+                    allCharacters.add(newCharacter);
+                    allEntities.add(newCharacter);
                     //System.out.printf("        location added character - %s: %s%n", newCharacter.getName(), newCharacter.getDescription());
                 }
                 case "Furniture" -> {
                     Furniture newFurniture = new Furniture(entityName, entityDescription);
                     newLocation.addFurniture(newFurniture);
+                    allFurniture.add(newFurniture);
+                    allEntities.add(newFurniture);
                     //System.out.printf("        location added furniture - %s: %s%n", newFurniture.getName(), newFurniture.getDescription());
                 }
             }
@@ -186,6 +208,31 @@ public class GameFileReader {
                 String elementName = elements.getElementsByTagName("entity").item(i).getTextContent();
                 if (elementName != null) {
                     GameEntity newEntity = new ActionEntity(elementName, null);
+                    // check the type of the entity
+                    for (Artefact artefact : allArtefacts) {
+                        if (artefact.getName().equals(elementName)) {
+                            newEntity = new Artefact(artefact.getName(), artefact.getDescription());
+                            break;
+                        }
+                    }
+                    for (Character character : allCharacters) {
+                        if (character.getName().equals(elementName)) {
+                            newEntity = new Character(character.getName(), character.getDescription());
+                            break;
+                        }
+                    }
+                    for (Furniture furniture : allFurniture) {
+                        if (furniture.getName().equals(elementName)) {
+                            newEntity = new Furniture(furniture.getName(), furniture.getDescription());
+                            break;
+                        }
+                    }
+                    for (Location location : locations) {
+                        if (location.getName().equals(elementName)) {
+                            newEntity = new Location(location.getName(), location.getDescription());
+                            break;
+                        }
+                    }
                     switch (elementType) {
                         case "subjects" -> newAction.addSubject(newEntity);
                         case "consumed" -> newAction.addConsumed(newEntity);

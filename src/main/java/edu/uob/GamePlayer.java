@@ -59,4 +59,12 @@ public class GamePlayer extends Character {
     public void removeFromInventory(GameEntity item) {
         inventory.remove(item);
     }
+
+    public String getHealth() {
+        return "Your health is " + health + "/" + maxHealth;
+    }
+
+    public void setHealth(int newHealth) {
+        health = newHealth;
+    }
 }
