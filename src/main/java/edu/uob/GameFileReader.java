@@ -121,6 +121,7 @@ public class GameFileReader {
                     }
                 } catch (NullPointerException e) {
                     System.out.println("    Error: " + source + " is not a valid location name.");
+                    throw new RuntimeException(e);
                 }
                 //System.out.println("    " + source + " -> " + destination);
             }
@@ -176,7 +177,6 @@ public class GameFileReader {
                 GameAction newAction = new GameAction(null);
                 for (int j = 0; j < triggers.getElementsByTagName("keyphrase").getLength(); j++) {
                     String triggerPhrase = triggers.getElementsByTagName("keyphrase").item(j).getTextContent();
-                    //System.out.println("Loaded keyphrase: " + triggerPhrase + " for action: " + action.getAttribute("name"));
                     allKeyPhrases.add(triggerPhrase);
                     KeyPhrase newKeyPhrase = new KeyPhrase(triggerPhrase);
                     newAction.addTrigger(newKeyPhrase);
@@ -185,11 +185,7 @@ public class GameFileReader {
                 parseActionsHelper(action, "consumed", newAction);
                 parseActionsHelper(action, "produced", newAction);
                 String narration = action.getElementsByTagName("narration").item(0).getTextContent();
-                //System.out.println("    Narration: " + narration);
-                // Narration newNarration = new Narration(narration);
-                // newAction.setNarration(newNarration);
                 newAction.setNarration(new Narration(narration));
-                //System.out.println("----------------------------------");
                 newAction.setName(newAction.getTriggers().get(0).getName());
                 newActions.add(newAction);
             }

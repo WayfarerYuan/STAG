@@ -11,11 +11,7 @@ public class GameCmdParser {
     private final GameFileReader gameFileReader;
     private final GameCmdTokenizer gameCmdTokenizer;
     private final ArrayList<String> cmdTokens;
-    private GameAction parsedAction;
     private Trigger parsedTrigger;
-    private int minNumOfSubjects = 1;
-    private int minNumOfConsumed = 0;
-    private int minNumOfProduced = 0;
     public boolean isGrammarOK = false;
 
     // This parser is used to take in the tokens and build up valid GameAction objects
@@ -30,44 +26,16 @@ public class GameCmdParser {
             // debug
             System.out.println("[Parser] Parsing.parse() get cmd: " + cmdTokens.toString());
             parsedTrigger = findTrigger(cmdTokens);
-//            parsedAction = new GameAction(parsedTrigger.getName());
-//            parsedAction.setTrigger(parsedTrigger);
             HashSet<GameAction> loadedAction = loadGameActions();
             // if loadedActions is empty, or contains more than one GameAction, throw an exception
             if (loadedAction.size() == 0) {
-                throw new IllegalArgumentException("[Parser] No GameAction was loaded");
+                throw new IllegalArgumentException("No GameAction was loaded");
             } else if (loadedAction.size() > 1) {
-                throw new IllegalArgumentException("[Parser] More than one matched GameActions found");
+                throw new IllegalArgumentException("More than one matched GameActions found");
             }
-            parsedAction = loadedAction.iterator().next();
+            GameAction parsedAction = loadedAction.iterator().next();
             parsedAction.setTrigger(parsedTrigger);
             isGrammarOK = checkCmdForGameEntities(cmdTokens, parsedAction);
-//            System.out.println("[Parser] parse(): " + parsedAction.getName());
-//            System.out.println("    [Parser] parse(): trigger ->" + parsedAction.getTrigger().getName());
-//            ArrayList<GameEntity> subjects = parsedAction.getSubjects();
-//            for (GameEntity subject : subjects) {
-//                System.out.println("    [Parser] parse(): subjects ->" + subject.getName());
-//            }
-//            ArrayList<GameEntity> consumed = parsedAction.getConsumed();
-//            for (GameEntity consume : consumed) {
-//                System.out.println("    [Parser] parse(): consumed ->" + consume.getName());
-//            }
-//            ArrayList<GameEntity> produced = parsedAction.getProduced();
-//            for (GameEntity produce : produced) {
-//                System.out.println("    [Parser] parse(): produced ->" + produce.getName());
-//            }
-//            System.out.println("    [Parser] parse(): narration ->" + parsedAction.getNarration().getName());
-            // Based on the trigger, find the corresponding GameAction, and check if the subjects, consumed, produced exist in the cmdTokens
-            // If they do, then add them to the GameAction object
-
-
-//        parsedAction.setUserName(cmdTokens.get(0));
-//        parsedAction.setTrigger(findTrigger(cmdTokens));
-//        parsedAction.setTarget(findTarget(cmdTokens));
-//        parsedAction.setConsumed(findConsumed(cmdTokens));
-//        parsedAction.setProduced(findProduced(cmdTokens));
-            // debug
-            System.out.println("[Parser] parse() get parsedAction: " + parsedAction.getName() + " " + parsedAction.getTrigger().getName() + " " + parsedAction.getSubjects().toString() + " " + parsedAction.getConsumed().toString() + " " + parsedAction.getProduced().toString() + " " + parsedAction.getNarration().getName());
             return parsedAction;
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("[Parser] " + e.getMessage());
@@ -86,20 +54,17 @@ public class GameCmdParser {
                 }
             }
         }
-        switch (foundTriggers.size()) {
-            case 0:
-                throw new IllegalArgumentException("[WARNING] No trigger found");
-            case 1:
-                return foundTriggers.get(0);
-            default:
-                throw new IllegalArgumentException("[WARNING] Unsupported number of triggers or built-in commands found");
-        }
+        return switch (foundTriggers.size()) {
+            case 0 -> throw new IllegalArgumentException("No trigger found");
+            case 1 -> foundTriggers.get(0);
+            default ->
+                    throw new IllegalArgumentException("Unsupported number of triggers or built-in commands found");
+        };
     }
 
     public HashSet<GameAction> loadGameActions() throws IllegalArgumentException{
         try {
-            HashSet<GameAction> gameActions = new HashSet<>();
-            System.out.println("[Parser] Loading GameActions for trigger: " + parsedTrigger.getName());
+            HashSet<GameAction> gameActions;
             if (gameFileReader.getActions().containsKey(parsedTrigger.getName())) {
                 gameActions = gameFileReader.getActions().get(parsedTrigger.getName());
                 //print out the loaded GameActions
@@ -112,7 +77,7 @@ public class GameCmdParser {
                 for (String key : gameFileReader.getActions().keySet()) {
                     System.out.println("[Parser] " + key);
                 }
-                throw new IllegalArgumentException("[Parser] No GameAction found for trigger: " + parsedTrigger.getName());
+                throw new IllegalArgumentException("No GameAction found for trigger: " + parsedTrigger.getName());
             }
             return gameActions;
         } catch (IllegalArgumentException e) {
@@ -120,113 +85,29 @@ public class GameCmdParser {
         }
     }
 
-    // Check the cmdTokens based on the trigger and return the subjects
-//    public boolean checkCmdForGameEntities(ArrayList<String> cmdTokens, GameAction gameAction) throws IllegalArgumentException{
-//        try {
-//            boolean enoughSubjects = checkCmdForSubjects(cmdTokens, gameAction);
-//            boolean enoughConsumed = checkCmdForConsumed(cmdTokens, gameAction);
-//            boolean enoughProduced = checkCmdForProduced(cmdTokens, gameAction);
-//            if (enoughSubjects && enoughConsumed && enoughProduced) {
-//                return true;
-//            } else {
-//                IllegalArgumentException e = new IllegalArgumentException("[Parser] Not enough subjects, consumed, or produced found");
-//                return false;
-//            }
-//        } catch (IllegalArgumentException e) {
-//            throw new IllegalArgumentException("[Parser] " + e.getMessage());
-//        }
-//    }
-//
-//    private boolean checkCmdForSubjects(ArrayList<String> cmdTokens, GameAction gameAction) throws IllegalArgumentException{
-//        try {
-//            ArrayList<GameEntity> requiredSubjects = gameAction.getSubjects();
-//            ArrayList<GameEntity> foundSubjects = new ArrayList<>();
-//            for (String token : cmdTokens) {
-//                for (GameEntity requiredSubject : requiredSubjects) {
-//                    if (token.equals(requiredSubject.getName())) {
-//                        foundSubjects.add(requiredSubject);
-//                    }
-//                }
-//            }
-//            if (foundSubjects.size() < minNumOfSubjects) {
-//                throw new IllegalArgumentException("[Parser] Not enough subjects found");
-//            } else {
-//                gameAction.setFoundRelatedSubjects(foundSubjects);
-//                return true;
-//            }
-//        } catch (IllegalArgumentException e) {
-//            throw new IllegalArgumentException("[Parser] " + e.getMessage());
-//        }
-//    }
-//
-//    private boolean checkCmdForConsumed(ArrayList<String> cmdTokens, GameAction gameAction) throws IllegalArgumentException{
-//        try {
-//            ArrayList<GameEntity> requiredConsumed = gameAction.getConsumed();
-//            ArrayList<GameEntity> foundConsumed = new ArrayList<>();
-//            for (String token : cmdTokens) {
-//                for (GameEntity requiredConsume : requiredConsumed) {
-//                    if (token.equals(requiredConsume.getName())) {
-//                        foundConsumed.add(requiredConsume);
-//                    }
-//                }
-//            }
-//            if (foundConsumed.size() < minNumOfConsumed) {
-//                throw new IllegalArgumentException("[Parser] Not enough consumed found");
-//            } else {
-//                gameAction.setFoundRelatedConsumed(foundConsumed);
-//                return true;
-//            }
-//        } catch (IllegalArgumentException e) {
-//            throw new IllegalArgumentException("[Parser] " + e.getMessage());
-//        }
-//    }
-//
-//    private boolean checkCmdForProduced(ArrayList<String> cmdTokens, GameAction gameAction) throws IllegalArgumentException{
-//        try {
-//            ArrayList<GameEntity> requiredProduced = gameAction.getProduced();
-//            ArrayList<GameEntity> foundProduced = new ArrayList<>();
-//            for (String token : cmdTokens) {
-//                for (GameEntity requiredProduce : requiredProduced) {
-//                    if (token.equals(requiredProduce.getName())) {
-//                        foundProduced.add(requiredProduce);
-//                    }
-//                }
-//            }
-//            if (foundProduced.size() < minNumOfProduced) {
-//                throw new IllegalArgumentException("[Parser] Not enough produced found");
-//            } else {
-//                gameAction.setFoundRelatedProduced(foundProduced);
-//                return true;
-//            }
-//        } catch (IllegalArgumentException e) {
-//            throw new IllegalArgumentException("[Parser] " + e.getMessage());
-//        }
-//    }
     public boolean checkCmdForGameEntities(ArrayList<String> cmdTokens, GameAction gameAction) throws IllegalArgumentException{
         try {
             if (gameAction.isBuiltIn) {
                 switch (gameAction.getName()) {
-                    case "inventory", "look":
-                        if (cmdTokens.size() ==1) { return true; }
-                        else {
+                    case "inventory", "look" -> {
+                        if (cmdTokens.size() == 1) {
+                            return true;
+                        } else {
                             throw new IllegalArgumentException("[Parser] Too many arguments for this built-in command");
                             //return false;
                         }
-                    case "get", "drop", "goto":
-                        if (cmdTokens.size() ==2) {
-                            GameEntity targetEntity = new ActionEntity(cmdTokens.get(1),null);
-                            System.out.println("[Parser!] Should add Target Entity: " + targetEntity.getName());
-                            //gameAction.addSubject(targetEntity);
-                            // reset the subjects and add the target entity
+                    }
+                    case "get", "drop", "goto" -> {
+                        if (cmdTokens.size() == 2) {
+                            GameEntity targetEntity = new ActionEntity(cmdTokens.get(1), null);
                             gameAction.getSubjects().clear();
                             gameAction.addSubject(targetEntity);
-                            System.out.println("[Parser!] Added Target Entity: " + gameAction.getSubjects().get(0).getName());
                             return true;
-                        }
-                        else {
-                            throw new IllegalArgumentException("[Parser] Too few or Too many arguments for this built-in command");
+                        } else {
+                            throw new IllegalArgumentException("Too few or Too many arguments for this built-in command");
                             //return false;
                         }
+                    }
                 }
             }
             return checkCmdForEntities(cmdTokens, gameAction.getSubjects(), gameAction::setFoundRelatedSubjects, "subjects", gameAction.isBuiltIn) &&
@@ -249,19 +130,15 @@ public class GameCmdParser {
         }
 
         int minNumOfEntities;
-        switch (entityType) {
-            case "subjects":
-                minNumOfEntities = minNumOfSubjects;
-                break;
-            case "consumed":
-                minNumOfEntities = minNumOfConsumed;
-                break;
-            case "produced":
-                minNumOfEntities = minNumOfProduced;
-                break;
-            default:
-                throw new IllegalArgumentException("[Parser] Invalid entity type");
-        }
+        int minNumOfSubjects = 1;
+        int minNumOfConsumed = 0;
+        int minNumOfProduced = 0;
+        minNumOfEntities = switch (entityType) {
+            case "subjects" -> minNumOfSubjects;
+            case "consumed" -> minNumOfConsumed;
+            case "produced" -> minNumOfProduced;
+            default -> throw new IllegalArgumentException("[Parser] Invalid entity type");
+        };
         if (isBuiltIn) {
             minNumOfEntities = 0;
         }

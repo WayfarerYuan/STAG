@@ -36,8 +36,6 @@ public class GameAction {
         this.requiredProduced = new ArrayList<>();
         this.foundRelatedProduced = new ArrayList<>();
         this.narration = new Narration("");
-        // debug
-        System.out.println("[Action] get: " + name);
     }
 
     public String getName() {

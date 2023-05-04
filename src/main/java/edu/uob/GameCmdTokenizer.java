@@ -25,6 +25,10 @@ public class GameCmdTokenizer {
                 checkUser(cmdUserName);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
+                throw new Exception(e.getMessage());
+            }
+            if (cmd.split(":").length == 1) {
+                throw new Exception("No command or username provided");
             }
             String input = cmd.split(":")[1].trim();
             String[] tokens = input.split(" ");
@@ -56,16 +60,38 @@ public class GameCmdTokenizer {
         reservedPhrases = gameFileReader.getAllKeyPhrases();
         String[] builtInCmds = {"inventory", "inv", "get", "drop", "goto", "look", "health"};
         for (String cmd : builtInCmds) {
-            if (!reservedPhrases.contains(cmd)) {
+//            if (!reservedPhrases.contains(cmd)) {
+//                reservedPhrases.add(cmd);
+//            }
+            // iterate through the reservedPhrases list and add the builtInCmds if not already present
+            boolean found = false;
+            for (String reservedPhrase : reservedPhrases) {
+                if (reservedPhrase.equals(cmd)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
                 reservedPhrases.add(cmd);
             }
         }
+        // debug
+//        System.out.println("[CmdTokenizer] Reserved Phrases:");
+//        for (String reservedPhrase : reservedPhrases) {
+//            System.out.println(reservedPhrase);
+//        }
     }
 
     private void checkUser(String cmdUserName) throws Exception{
         try {
-            if (cmdUserName.isEmpty() || cmdUserName.isBlank() || cmdUserName == null) {
+            if (cmdUserName.isEmpty() || cmdUserName.isBlank()) {
                 throw new Exception("Empty or Null user name provided");
+            }
+            // Check if user name is reserved
+            for (String reservedPhrase : reservedPhrases) {
+                if (reservedPhrase.equals(cmdUserName)) {
+                    throw new Exception("Should not use reserved phrase as user name");
+                }
             }
             // Check if user exists, if not, create new user
             for (GamePlayer player : gameWorld.getPlayersList()) {

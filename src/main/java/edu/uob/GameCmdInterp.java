@@ -18,7 +18,7 @@ public class GameCmdInterp {
         this.action = action;
     }
 
-    public String interpret() {
+    public String interpret() throws Exception {
         String resMsg;
         if (isBuiltInAction(action.getName())) {
             resMsg = exeBuiltInAction(action);
@@ -32,7 +32,7 @@ public class GameCmdInterp {
         return actionName.equals("inventory") || actionName.equals("get") || actionName.equals("drop") || actionName.equals("goto") || actionName.equals("look") || actionName.equals("health");
     }
 
-    private String exeBuiltInAction(GameAction action) {
+    private String exeBuiltInAction(GameAction action) throws Exception {
         String actionName = action.getName();
         return switch (actionName) {
             case "inventory" -> printInventory();
@@ -46,41 +46,46 @@ public class GameCmdInterp {
     }
 
     private String printInventory() {
-        String resMsg;
-        ArrayList<GameEntity> inventory = player.getInventory();
-        if (inventory.size() == 0) {
-            resMsg = "Your inventory is empty.";
-        } else {
-            resMsg = "You have the following items in your inventory: \n";
-            for (GameEntity item : inventory) {
-                resMsg += item.getName() + "\n";
+        try{
+            StringBuilder resMsg;
+            ArrayList<GameEntity> inventory = player.getInventory();
+            if (inventory.size() == 0) {
+                resMsg = new StringBuilder("Your inventory is empty.");
+            } else {
+                resMsg = new StringBuilder("You have the following items in your inventory: \n");
+                for (GameEntity item : inventory) {
+                    resMsg.append(item.getName()).append("\n");
+                }
             }
+            return resMsg.toString();
+        } catch (Exception e) {
+            return e.getMessage();
         }
-        return resMsg;
     }
 
-    private String pickUp(GameEntity obj) {
+    private String pickUp(GameEntity obj) throws Exception{
         String resMsg = "";
         String objName = obj.getName();
         System.out.println("[Interp] Player: " + player.getName() + ", Action: " + action.getName() + ", Subject: " + objName);
         //player.getLocation().getArtefacts();
-        for (GameEntity item : player.getLocation().getArtefacts()) {
+        for (Artefact item : player.getLocation().getArtefacts()) {
             if (item.getName().equals(objName)) {
                 // Debug:
                 System.out.println("Player " + player.getName() + " is picking up " + objName + ".");
                 player.addToInventory(item);
-                player.getLocation().removeArtefact((Artefact) item);
+                player.getLocation().removeArtefact(item);
                 resMsg = "You picked up " + objName + ".";
                 break;
             }
         }
         if (resMsg.equals("")) {
             resMsg = "There is no " + objName + " in this location or you cannot get it.";
+            throw new Exception(resMsg);
         }
         return resMsg;
     }
 
-    private String drop(GameEntity obj) {
+    private String drop(GameEntity obj) throws Exception{
         String resMsg = "";
         String objName = obj.getName();
         System.out.println("[Interp] Player: " + player.getName() + ", Action: " + action.getName() + ", Subject: " + objName);
@@ -96,52 +101,54 @@ public class GameCmdInterp {
         }
         if (resMsg.equals("")) {
             resMsg = "You don't have " + objName + " in your inventory.";
+            throw new Exception(resMsg);
         }
         return resMsg;
     }
 
-    private String look() {
-        String resMsg = "";
+    private String look() throws Exception{
+        StringBuilder resMsg = new StringBuilder();
         ArrayList<Character> characters = player.getLocation().getCharacters();
         ArrayList<Artefact> artefacts = player.getLocation().getArtefacts();
         ArrayList<Furniture> furnitures = player.getLocation().getFurnitures();
         ArrayList<Path> paths = player.getLocation().getPaths();
-        resMsg += "You are in " + player.getLocation().getDescription() + "\n";
-        resMsg += "You look around and find: \n";
+        resMsg.append("You are in ").append(player.getLocation().getDescription()).append("\n");
+        resMsg.append("You look around and find: \n");
         if (characters.size() > 0) {
-            resMsg += "Characters: \n";
+            resMsg.append("Characters: \n");
             for (Character character : characters) {
                 if (character.getName().equals(player.getName()))
-                    resMsg += "\t" + character.getName() + " (You)\n";
+                    resMsg.append("\t").append(character.getName()).append(" (You)\n");
                 else
-                    resMsg += "\t" + character.getName() + "("+ character.getDescription() + ")\n";
+                    resMsg.append("\t").append(character.getName()).append(" (").append(character.getDescription()).append(")\n");
             }
         }
         if (artefacts.size() > 0) {
-            resMsg += "Artefacts: \n";
+            resMsg.append("Artefacts: \n");
             for (Artefact artefact : artefacts) {
-                resMsg += "\t" + artefact.getName() + "("+ artefact.getDescription() + ")\n";
+                resMsg.append("\t").append(artefact.getName()).append(" (").append(artefact.getDescription()).append(")\n");
             }
         }
         if (furnitures.size() > 0) {
-            resMsg += "Furnitures: \n";
+            resMsg.append("Furnitures: \n");
             for (Furniture furniture : furnitures) {
-                resMsg += "\t" + furniture.getName() + "("+ furniture.getDescription() + ")\n";
+                resMsg.append("\t").append(furniture.getName()).append(" (").append(furniture.getDescription()).append(")\n");
             }
         }
         if (paths.size() > 0) {
-            resMsg += "Paths: \n";
+            resMsg.append("Paths: \n");
             for (Path path : paths) {
-                resMsg += "\t" + path.getSource() + " -> " + path.getDestination() + "\n";
+                resMsg.append("\t").append(path.getSource()).append(" -> ").append(path.getDestination()).append("\n");
             }
         }
-        if (resMsg.equals("")) {
-            resMsg = "There's only darkness in your eyes, must be something wrong?";
+        if (resMsg.toString().equals("")) {
+            resMsg = new StringBuilder("There's only darkness in your eyes, must be something wrong?");
+            throw new Exception(resMsg.toString());
         }
-        return resMsg;
+        return resMsg.toString();
     }
 
-    private String goTo(String destStr) {
+    private String goTo(String destStr) throws Exception{
         String resMsg = "";
         ArrayList<Location> locations = world.getLocationsList();
         Location dest = null;
@@ -161,6 +168,7 @@ public class GameCmdInterp {
         }
         if (resMsg.equals("")) {
             resMsg = "You cannot go to " + destStr + " from here.";
+            throw new Exception(resMsg);
         }
         return resMsg;
     }
@@ -170,14 +178,14 @@ public class GameCmdInterp {
         ArrayList<GameEntity> consumed = action.getConsumed();
         ArrayList<GameEntity> produced = action.getProduced();
         String narration = action.getNarration().getName();
-        String resMsg = "";
+        String resMsg;
         // Check if subjects exist in the location
-        if (!checkSubjects(subjects) && !subjects.isEmpty()) {
+        if (checkSubjects(subjects) && !subjects.isEmpty()) {
             resMsg = "Some of the subjects are not in this location.";
             return resMsg;
         }
         // Check if consumed exist in the inventory or location
-        if (!checkSubjects(consumed) && !consumed.isEmpty()) {
+        if (checkSubjects(consumed) && !consumed.isEmpty()) {
             resMsg = "Some of the consumed items are not in your inventory or this location.";
             // DEBUG:
             System.out.println("[Interp] Consumed issue");
@@ -205,12 +213,10 @@ public class GameCmdInterp {
             } else if (item instanceof Path) {
                 player.getLocation().removePath((Path) item);
             } else if (item instanceof Location) {
-                player.getLocation().removePath(new Path(player.getLocation().getName(), ((Location) item).getName()));
+                player.getLocation().removePath(new Path(player.getLocation().getName(), item.getName()));
                 // remove the reverse path
-                ((Location) item).removePath(new Path(((Location) item).getName(), player.getLocation().getName()));
-            } else if (item instanceof Character) {
-                player.getLocation().removeCharacter((Character) item);
-            } else if (item.getName().toLowerCase().equals("health")) {
+                ((Location) item).removePath(new Path(item.getName(), player.getLocation().getName()));
+            } else if (item.getName().equalsIgnoreCase("health")) {
                 if (player.getHealth() == 1) {
                     resMsg = "You died and lost all of your items, you must return to the start of the game";
                     player.setHealth(player.getHealth() - 1);
@@ -230,12 +236,10 @@ public class GameCmdInterp {
             } else if (item instanceof Path) {
                 player.getLocation().addPath((Path) item);
             } else if (item instanceof Location) {
-                player.getLocation().addPath(new Path(player.getLocation().getName(), ((Location) item).getName()));
+                player.getLocation().addPath(new Path(player.getLocation().getName(), item.getName()));
                 // add the reverse path
-                ((Location) item).addPath(new Path(((Location) item).getName(), player.getLocation().getName()));
-            } else if (item instanceof Character) {
-                player.getLocation().addCharacter((Character) item);
-            } else if (item.getName().toLowerCase().equals("health")) {
+                ((Location) item).addPath(new Path(item.getName(), player.getLocation().getName()));
+            } else if (item.getName().equalsIgnoreCase("health")) {
                 player.setHealth(player.getHealth() + 1);
             }
         }
@@ -253,7 +257,7 @@ public class GameCmdInterp {
                 res = true;
             }
         }
-        return res;
+        return !res;
     }
 
     private boolean checkSubject(GameEntity subject) {
@@ -296,40 +300,27 @@ public class GameCmdInterp {
         } else if (subject instanceof Path) {
             System.out.println("Subject " + subject.getName() + " is a path.");
             // check if the path is in the location
-            ArrayList<Path> paths = player.getLocation().getPaths();
-            for (Path path : paths) {
-                if (path.getDestination().equals(subject.getName())) {
-                    System.out.println("Subject " + subject.getName() + " is in the player's location.");
-                    res = true;
-                    break;
-                }
-            }
+            res = isRes(subject, false);
         } else if (subject instanceof Location) {
             System.out.println("Subject " + subject.getName() + " is a location.");
             // check if the location is in the location
-            ArrayList<Path> paths = player.getLocation().getPaths();
-            for (Path path : paths) {
-                if (path.getDestination().equals(subject.getName())) {
-                    System.out.println("Subject " + subject.getName() + " is in the player's location.");
-                    res = true;
-                    break;
-                }
-            }
-        } else if (subject instanceof Character) {
-            System.out.println("Subject " + subject.getName() + " is a character.");
-            // check if the character is in the location
-            ArrayList<Character> characters = player.getLocation().getCharacters();
-            for (Character character : characters) {
-                if (character.getName().equals(subject.getName())) {
-                    System.out.println("Subject " + subject.getName() + " is in the player's location.");
-                    res = true;
-                    break;
-                }
-            }
-        } else if (subject.getName().toLowerCase().equals("health")) {
+            res = isRes(subject, false);
+        } else if (subject.getName().equalsIgnoreCase("health")) {
             res = true;
         } else {
             System.out.println("Subject " + subject.getName() + " is not a unknown type of subject.");
+        }
+        return res;
+    }
+
+    private boolean isRes(GameEntity subject, boolean res) {
+        ArrayList<Path> paths = player.getLocation().getPaths();
+        for (Path path : paths) {
+            if (path.getDestination().equals(subject.getName())) {
+                System.out.println("Subject " + subject.getName() + " is in the player's location.");
+                res = true;
+                break;
+            }
         }
         return res;
     }

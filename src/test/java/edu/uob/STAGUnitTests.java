@@ -64,7 +64,7 @@ public class STAGUnitTests {
     @Test
     void testParseValidCommand() throws Exception{
         // Initialize gameCmdTokenizer with a valid command
-        String command = "player1:go to Cellar";
+        String command = "player1:goto Cellar";
         gameCmdTokenizer = new GameCmdTokenizer(gameFileReader, gameWorld, command);
         gameCmdTokenizer.tokenize(command);
 
@@ -75,20 +75,129 @@ public class STAGUnitTests {
             assertNotNull(parsedAction, "Parsed action should not be null");
             // Add more assertions based on expected values of the parsed action
         } catch (IllegalArgumentException e) {
-            fail("Exception should not be thrown for a valid command");
+            // should not reach here
+            fail("IllegalArgumentException should not be thrown");
         }
     }
 
     @Test
     void testParseInvalidCommand() throws Exception{
         // Initialize gameCmdTokenizer with an invalid command
-        String command = "sample_invalid_command";
-        gameCmdTokenizer = new GameCmdTokenizer(gameFileReader, gameWorld, command);
-        gameCmdTokenizer.tokenize(command);
+        String command = "xxx: sample_invalid_command";
+        try {
+            gameCmdTokenizer = new GameCmdTokenizer(gameFileReader, gameWorld, command);
+            gameCmdTokenizer.tokenize(command);
 
-        gameCmdParser = new GameCmdParser(gameFileReader, gameCmdTokenizer);
+            gameCmdParser = new GameCmdParser(gameFileReader, gameCmdTokenizer);
+            GameAction parsedAction = gameCmdParser.parse();
+            fail("IllegalArgumentException should be thrown");
+        } catch (IllegalArgumentException e) {
+            assertTrue(true);
+        }
+    }
 
-        assertThrows(IllegalArgumentException.class, () -> gameCmdParser.parse(), "IllegalArgumentException should be thrown for an invalid command");
+    @Test
+    void testParseValidCommandWithInvalidPlayer() throws Exception{
+        // Initialize gameCmdTokenizer with a valid command
+        String command = "goto:goto Cellar";
+        try {
+            gameCmdTokenizer = new GameCmdTokenizer(gameFileReader, gameWorld, command);
+            gameCmdTokenizer.tokenize(command);
+
+            gameCmdParser = new GameCmdParser(gameFileReader, gameCmdTokenizer);
+            GameAction parsedAction = gameCmdParser.parse();
+            fail("Exception should be thrown");
+        } catch (Exception e) {
+            assertTrue(true);
+        }
+    }
+
+    @Test
+    void testParseValidCommandWithInvalidAction() throws Exception{
+        // Initialize gameCmdTokenizer with a valid command
+        String command = "player1:xxx Cellar";
+        try {
+            gameCmdTokenizer = new GameCmdTokenizer(gameFileReader, gameWorld, command);
+            gameCmdTokenizer.tokenize(command);
+
+            gameCmdParser = new GameCmdParser(gameFileReader, gameCmdTokenizer);
+            GameAction parsedAction = gameCmdParser.parse();
+            fail("Exception should be thrown");
+        } catch (Exception e) {
+            assertTrue(true);
+        }
+    }
+
+    @Test
+    void testInterpWithInvalidObject() throws Exception{
+        // Initialize gameCmdTokenizer with a valid command
+        String command = "player1:goto xxx";
+        try {
+            gameCmdTokenizer = new GameCmdTokenizer(gameFileReader, gameWorld, command);
+            gameCmdTokenizer.tokenize(command);
+
+            gameCmdParser = new GameCmdParser(gameFileReader, gameCmdTokenizer);
+            GameAction parsedAction = gameCmdParser.parse();
+            GameCmdInterp gameCmdInterp = new GameCmdInterp(gameWorld, gameCmdTokenizer.getPlayerFromCmd(), parsedAction);
+            gameCmdInterp.interpret();
+            fail("Exception should be thrown");
+        } catch (Exception e) {
+            assertTrue(true);
+        }
+    }
+
+    @Test
+    void testInterpWithInvalidPlayer() throws Exception{
+        // Initialize gameCmdTokenizer with a valid command
+        String command = "xxx:goto Cellar";
+        try {
+            gameCmdTokenizer = new GameCmdTokenizer(gameFileReader, gameWorld, command);
+            gameCmdTokenizer.tokenize(command);
+
+            gameCmdParser = new GameCmdParser(gameFileReader, gameCmdTokenizer);
+            GameAction parsedAction = gameCmdParser.parse();
+            GameCmdInterp gameCmdInterp = new GameCmdInterp(gameWorld, gameCmdTokenizer.getPlayerFromCmd(), parsedAction);
+            gameCmdInterp.interpret();
+            fail("Exception should be thrown");
+        } catch (Exception e) {
+            assertTrue(true);
+        }
+    }
+
+    @Test
+    void testInterpWithInvalidAction() throws Exception{
+        // Initialize gameCmdTokenizer with a valid command
+        String command = "player1:xxx Cellar";
+        try {
+            gameCmdTokenizer = new GameCmdTokenizer(gameFileReader, gameWorld, command);
+            gameCmdTokenizer.tokenize(command);
+
+            gameCmdParser = new GameCmdParser(gameFileReader, gameCmdTokenizer);
+            GameAction parsedAction = gameCmdParser.parse();
+            GameCmdInterp gameCmdInterp = new GameCmdInterp(gameWorld, gameCmdTokenizer.getPlayerFromCmd(), parsedAction);
+            gameCmdInterp.interpret();
+            fail("Exception should be thrown");
+        } catch (Exception e) {
+            assertTrue(true);
+        }
+    }
+
+    @Test
+    void testInterpWithValidAction() throws Exception{
+        // Initialize gameCmdTokenizer with a valid command
+        String command = "player1:goto forest";
+        try {
+            gameCmdTokenizer = new GameCmdTokenizer(gameFileReader, gameWorld, command);
+            gameCmdTokenizer.tokenize(command);
+
+            gameCmdParser = new GameCmdParser(gameFileReader, gameCmdTokenizer);
+            GameAction parsedAction = gameCmdParser.parse();
+            GameCmdInterp gameCmdInterp = new GameCmdInterp(gameWorld, gameCmdTokenizer.getPlayerFromCmd(), parsedAction);
+            gameCmdInterp.interpret();
+            assertTrue(true);
+        } catch (Exception e) {
+            fail("Exception should not be thrown");
+        }
     }
 
 }

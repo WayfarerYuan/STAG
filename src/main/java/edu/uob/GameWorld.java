@@ -18,10 +18,6 @@ public class GameWorld {
 
     public void buildWorld() {
         this.locations = gameFileReader.getLocations();
-        //Debug
-        for (Location location : locations) {
-            System.out.println(location.getName());
-        }
     }
 
     public void newPlayer(String name) {
