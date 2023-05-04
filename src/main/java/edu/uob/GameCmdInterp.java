@@ -8,9 +8,9 @@ import edu.uob.entities.Path;
 import java.util.ArrayList;
 
 public class GameCmdInterp {
-    private GamePlayer player;
-    private GameWorld world;
-    private GameAction action;
+    private final GamePlayer player;
+    private final GameWorld world;
+    private final GameAction action;
 
     public GameCmdInterp(GameWorld world, GamePlayer player, GameAction action) {
         this.player = player;
@@ -19,7 +19,7 @@ public class GameCmdInterp {
     }
 
     public String interpret() {
-        String resMsg = "";
+        String resMsg;
         if (isBuiltInAction(action.getName())) {
             resMsg = exeBuiltInAction(action);
         } else {
@@ -34,26 +34,19 @@ public class GameCmdInterp {
 
     private String exeBuiltInAction(GameAction action) {
         String actionName = action.getName();
-        switch (actionName) {
-            case "inventory":
-                return printInventory();
-            case "get":
-                return pickUp(action.getSubjects().get(0));
-            case "drop":
-                return drop(action.getSubjects().get(0));
-            case "goto":
-                return goTo(action.getSubjects().get(0).getName());
-            case "look":
-                return look();
-            case "health":
-                return player.getHealthStr();
-            default:
-                return "Invalid action";
-        }
+        return switch (actionName) {
+            case "inventory" -> printInventory();
+            case "get" -> pickUp(action.getSubjects().get(0));
+            case "drop" -> drop(action.getSubjects().get(0));
+            case "goto" -> goTo(action.getSubjects().get(0).getName());
+            case "look" -> look();
+            case "health" -> player.getHealthStr();
+            default -> "Invalid action";
+        };
     }
 
     private String printInventory() {
-        String resMsg = "";
+        String resMsg;
         ArrayList<GameEntity> inventory = player.getInventory();
         if (inventory.size() == 0) {
             resMsg = "Your inventory is empty.";

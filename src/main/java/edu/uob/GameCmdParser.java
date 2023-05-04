@@ -1,7 +1,6 @@
 package edu.uob;
 
 import edu.uob.action.component.ActionEntity;
-import edu.uob.action.component.Subject;
 import edu.uob.action.component.Trigger;
 
 import java.util.ArrayList;

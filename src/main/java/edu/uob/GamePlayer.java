@@ -31,9 +31,9 @@ public class GamePlayer extends Character {
         return name;
     }
 
-    public void setName(String newName) {
-        name = newName;
-    }
+//    public void setName(String newName) {
+//        name = newName;
+//    }
 
     public Location getLocation() {
         return location;

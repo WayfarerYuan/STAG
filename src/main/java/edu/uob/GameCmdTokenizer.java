@@ -1,57 +1,55 @@
 package edu.uob;
 
-import edu.uob.action.component.KeyPhrase;
-
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 
 public class GameCmdTokenizer {
-    private List<String> cmdTokens = new ArrayList<>();
+    private final List<String> cmdTokens = new ArrayList<>();
     private List<String> reservedPhrases = new ArrayList<>();
-    private GameFileReader gameFileReader;
-    private GameWorld gameWorld;
+    private final GameFileReader gameFileReader;
+    private final GameWorld gameWorld;
     private String cmdUserName = "";
 
-    public GameCmdTokenizer(GameFileReader gameFileReader, GameWorld gameWorld, String cmd) {
+    public GameCmdTokenizer(GameFileReader gameFileReader, GameWorld gameWorld, String cmd) throws Exception {
         this.gameFileReader = gameFileReader;
         this.gameWorld = gameWorld;
         setReservedWords();
         tokenize(cmd);
     }
 
-    public ArrayList<String> tokenize(String cmd) {
-        //debug
-        System.out.println("[Tokenizer] Tokenizing command: " + cmd);
-        cmdTokens.clear();
-        cmdUserName = cmd.split(":")[0];
+    public void tokenize(String cmd) throws Exception {
         try {
-            checkUser(cmdUserName);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-        String input = cmd.split(":")[1].trim();
-        String[] tokens = input.split(" ");
-        if (tokens.length == 1) {
-            cmdTokens.add(tokens[0]);
-        } else {
-            for (int i = 0; i < tokens.length; i++) {
-                String token = tokens[i];
-                if (i < tokens.length - 1) {
-                    String combinedPhrase = token + " " + tokens[i + 1];
-                    if (reservedPhrases.contains(combinedPhrase)) {
-                        cmdTokens.add(combinedPhrase);
-                        i++;
-                        continue;
+            cmdTokens.clear();
+            cmdUserName = cmd.split(":")[0];
+            try {
+                checkUser(cmdUserName);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+            String input = cmd.split(":")[1].trim();
+            String[] tokens = input.split(" ");
+            if (tokens.length == 1) {
+                cmdTokens.add(tokens[0]);
+            } else {
+                for (int i = 0; i < tokens.length; i++) {
+                    String token = tokens[i];
+                    if (i < tokens.length - 1) {
+                        String combinedPhrase = token + " " + tokens[i + 1];
+                        if (reservedPhrases.contains(combinedPhrase)) {
+                            cmdTokens.add(combinedPhrase);
+                            i++;
+                            continue;
+                        }
+                    }
+                    if (!token.isEmpty()) {
+                        cmdTokens.add(token);
                     }
                 }
-                if (!token.isEmpty()) {
-                    cmdTokens.add(token);
-                }
             }
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
         }
-        return (ArrayList<String>) cmdTokens;
+
     }
 
     private void setReservedWords() {
